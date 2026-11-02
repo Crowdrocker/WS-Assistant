@@ -1,0 +1,26 @@
+assistant:
+  name: "WS Assistant"
+  log_level: "INFO"
+
+runtime:
+  mode: "local"
+
+ai:
+  provider: "ollama"
+  base_url: "http://127.0.0.1:11434"
+  model: "llama3.2"
+
+voice:
+  enabled: false
+  speech_to_text: "whisper.cpp"
+  text_to_speech: "system"
+
+desktop:
+  compositor: "auto"
+  confirm_sensitive_actions: true
+
+integrations:
+  obs:
+    enabled: false
+    host: "127.0.0.1"
+    port: 4455
