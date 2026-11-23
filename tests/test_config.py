@@ -22,3 +22,23 @@ def test_rejects_invalid_obs_port() -> None:
     config = load_config()
     config["integrations"]["obs"]["port"] = 70000
     assert "integrations.obs.port must be an integer from 1 to 65535." in validate_config(config)
+
+
+def test_rejects_invalid_ollama_settings() -> None:
+    config = load_config()
+    config["ai"]["base_url"] = "file:///tmp/ollama"
+    config["ai"]["model"] = " "
+    config["ai"]["timeout_seconds"] = 0
+    errors = validate_config(config)
+    assert "ai.base_url must be an HTTP(S) URL without credentials or query." in errors
+    assert "ai.model must not be empty." in errors
+    assert "ai.timeout_seconds must be a positive number." in errors
+
+
+def test_rejects_malformed_ollama_url_and_non_finite_timeout() -> None:
+    config = load_config()
+    config["ai"]["base_url"] = "http://[invalid"
+    config["ai"]["timeout_seconds"] = float("nan")
+    errors = validate_config(config)
+    assert "ai.base_url must be an HTTP(S) URL without credentials or query." in errors
+    assert "ai.timeout_seconds must be a positive number." in errors

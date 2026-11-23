@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import math
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 import yaml
 
@@ -40,6 +42,32 @@ def validate_config(config: dict[str, Any]) -> list[str]:
         errors.append("assistant.name must not be empty.")
     if config.get("runtime", {}).get("mode") != "local":
         errors.append("Only runtime.mode: local is supported in v0.1.")
+    ai = config.get("ai", {})
+    base_url = ai.get("base_url", "")
+    try:
+        parsed_url = urlsplit(str(base_url))
+        valid_base_url = (
+            parsed_url.scheme in {"http", "https"}
+            and bool(parsed_url.hostname)
+            and not parsed_url.username
+            and not parsed_url.password
+            and not parsed_url.query
+            and not parsed_url.fragment
+        )
+    except ValueError:
+        valid_base_url = False
+    if not valid_base_url:
+        errors.append("ai.base_url must be an HTTP(S) URL without credentials or query.")
+    if not str(ai.get("model", "")).strip():
+        errors.append("ai.model must not be empty.")
+    timeout = ai.get("timeout_seconds", 120)
+    if (
+        not isinstance(timeout, (int, float))
+        or isinstance(timeout, bool)
+        or not math.isfinite(timeout)
+        or timeout <= 0
+    ):
+        errors.append("ai.timeout_seconds must be a positive number.")
     port = config.get("integrations", {}).get("obs", {}).get("port", 4455)
     if not isinstance(port, int) or not 1 <= port <= 65535:
         errors.append("integrations.obs.port must be an integer from 1 to 65535.")
