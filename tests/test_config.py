@@ -11,6 +11,14 @@ def test_defaults_load_when_file_missing(tmp_path: Path) -> None:
     assert validate_config(config) == []
 
 
+def test_nested_default_config_is_isolated_between_loads(tmp_path: Path) -> None:
+    config_path = tmp_path / "missing.yaml"
+    first = load_config(config_path)
+    first["voice"]["enabled"] = True
+    second = load_config(config_path)
+    assert second["voice"]["enabled"] is False
+
+
 def test_rejects_unknown_section(tmp_path: Path) -> None:
     path = tmp_path / "bad.yaml"
     path.write_text("unknown: {}\n", encoding="utf-8")

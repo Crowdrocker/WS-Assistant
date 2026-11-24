@@ -10,6 +10,7 @@ from pathlib import Path
 from ws_assistant import __version__
 from ws_assistant.ai.ollama import OllamaClient, OllamaError
 from ws_assistant.config import load_config, validate_config
+from ws_assistant.voice.whisper import VoiceError, record_and_transcribe
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -22,6 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("ai-check", help="Check Ollama connectivity and configured model.")
     interpret = subparsers.add_parser("interpret", help="Turn text into a structured intent proposal.")
     interpret.add_argument("text", help="Text to interpret as a desktop assistant request.")
+    subparsers.add_parser("voice", help="Record a voice request and print its intent proposal.")
     return parser
 
 
@@ -42,7 +44,12 @@ def main() -> int:
         print(f"Python: {platform.python_version()}")
         print("Mode: local")
         print("Ollama AI: `ws-assistant ai-check` and `ws-assistant interpret`")
-        print("Microphone/desktop/OBS integrations: not enabled")
+        print(
+            "Voice input: enabled"
+            if config["voice"].get("enabled")
+            else "Voice input: disabled (configure voice.enabled to enable)"
+        )
+        print("Desktop/OBS integrations: not enabled")
         return 0
     if args.command == "config-check":
         errors = validate_config(config)
@@ -55,8 +62,23 @@ def main() -> int:
         print("No desktop actions are registered yet.")
         print("Future actions will be explicitly allow-listed.")
         return 0
-    if args.command in {"ai-check", "interpret"}:
+    if args.command in {"ai-check", "interpret", "voice"}:
         try:
+            text = args.text if args.command == "interpret" else None
+            if args.command == "voice":
+                voice = config["voice"]
+                if not voice.get("enabled"):
+                    print(
+                        "Voice input is disabled. Set voice.enabled: true in config/assistant.yaml.",
+                        file=sys.stderr,
+                    )
+                    return 1
+                text = record_and_transcribe(
+                    recorder_command=str(voice["recorder_command"]),
+                    whisper_command=str(voice["whisper_command"]),
+                    model_path=str(voice["model_path"]),
+                )
+                print(f"Heard: {text}")
             ai = config["ai"]
             client = OllamaClient(
                 base_url=str(ai["base_url"]),
@@ -72,9 +94,11 @@ def main() -> int:
                     file=sys.stderr,
                 )
                 return 1
-            intent = client.interpret(args.text)
-        except (OllamaError, ValueError) as exc:
-            print(f"AI error: {exc}", file=sys.stderr)
+            if text is None:
+                raise ValueError("No text was available to interpret.")
+            intent = client.interpret(text)
+        except (OllamaError, VoiceError, ValueError) as exc:
+            print(f"Assistant error: {exc}", file=sys.stderr)
             return 1
         print(json.dumps(intent.to_dict(), indent=2, ensure_ascii=False))
         print("Proposal only; no desktop action was executed.")

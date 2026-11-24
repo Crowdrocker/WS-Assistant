@@ -3,7 +3,7 @@
 WS Assistant is a local-first Python application with optional integrations.
 
 ```text
-Voice input (future) -> Speech-to-text --+
+Voice input (PipeWire push-to-talk) -> Whisper.cpp --+
 Typed text ------------------------------+-> Ollama intent interpreter
                                           -> Validated proposal (current)
                                           -> Allow-listed actions -> Desktop / OBS / audio adapters (future)
@@ -19,4 +19,4 @@ Response -> Text-to-speech (future)
 5. Require confirmation for sensitive actions.
 6. Keep credentials out of committed config files.
 
-The current `ai/` module uses Ollama's local `/api/chat` endpoint and structured JSON output. It does not execute actions. Planned packages: `voice/`, `commands/`, `desktop/`, and `integrations/`.
+The current `ai/` module uses Ollama's local `/api/chat` endpoint and structured JSON output. The `voice/` module records from PipeWire until Enter and transcribes via the local Whisper.cpp CLI. Neither AI nor transcription output executes actions. Planned packages: `commands/`, `desktop/`, and `integrations/`.
