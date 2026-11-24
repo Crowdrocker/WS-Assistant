@@ -13,8 +13,8 @@
 - [x] Structured intent output with local validation
 
 ## v0.3 — Voice
-- [ ] Whisper.cpp adapter
-- [ ] Push-to-talk first; wake word later
+- [x] Whisper.cpp adapter
+- [x] Push-to-talk first; wake word later
 - [ ] Text-to-speech responses
 
 ## v0.4 — Desktop actions

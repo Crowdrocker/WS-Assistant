@@ -15,6 +15,9 @@ voice:
   enabled: false
   speech_to_text: "whisper.cpp"
   text_to_speech: "system"
+  recorder_command: "pw-record"
+  whisper_command: "whisper-cli"
+  model_path: ""
 
 desktop:
   compositor: "auto"

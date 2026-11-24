@@ -14,7 +14,7 @@ A local-first, modular desktop assistant for Linux. Ollama can turn typed reques
 - Arch Linux and Fedora setup helpers
 - Unit tests
 
-Not implemented yet: microphone capture, wake-word detection, Whisper, TTS, OBS WebSocket, or compositor-specific automation.
+Not implemented yet: wake-word detection, TTS, OBS WebSocket, or compositor-specific automation.
 
 ## Quick start
 
@@ -35,6 +35,8 @@ ws-assistant interpret "Switch OBS to the gaming scene"
 The application reads `config/assistant.yaml` when present. Otherwise it uses built-in defaults. Do not commit personal tokens, passwords, or private device details.
 
 On Void Linux, run Ollama as a local service or user process and pull the configured model (`ollama pull llama3.2`). The assistant connects to `http://127.0.0.1:11434` by default. `interpret` accepts text for now; it prints a structured proposal and does not execute desktop commands.
+
+Voice input uses the default PipeWire microphone through `pw-record` and transcribes locally with `whisper-cli`. Install those tools and a Whisper.cpp model, then set `voice.enabled: true` and `voice.model_path` in `config/assistant.yaml`. Run `ws-assistant voice` in a terminal, speak, and press Enter to stop recording. The transcript is sent to Ollama and printed as a proposal; no desktop action runs automatically. Niri users can bind a key to launch a terminal running `ws-assistant voice`; see `docs/CONFIGURATION.md` for an example.
 
 ## Safety
 
