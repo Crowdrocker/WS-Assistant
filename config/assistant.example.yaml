@@ -9,6 +9,7 @@ ai:
   provider: "ollama"
   base_url: "http://127.0.0.1:11434"
   model: "llama3.2"
+  timeout_seconds: 120
 
 voice:
   enabled: false

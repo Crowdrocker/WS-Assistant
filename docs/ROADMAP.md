@@ -8,9 +8,9 @@
 - [x] Tests and documentation
 
 ## v0.2 — Local AI
-- [ ] Ollama connectivity check
-- [ ] Model selection and prompt templates
-- [ ] Structured intent output
+- [x] Ollama connectivity and configured-model check
+- [x] Configurable Ollama model and intent prompt
+- [x] Structured intent output with local validation
 
 ## v0.3 — Voice
 - [ ] Whisper.cpp adapter
